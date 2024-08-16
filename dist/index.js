@@ -1,3 +1,4 @@
 import Input from './Input.svelte';
 import Accordion from './Accordion.svelte';
-export { Input, Accordion };
+import AccordionItem from './AccordionItem.svelte';
+export { Input, Accordion, AccordionItem };
