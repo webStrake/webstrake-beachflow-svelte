@@ -1,30 +1,29 @@
-<script>export let items = [];
+<script>import { slide } from "svelte/transition";
+export let items = [];
 let openIndex = -1;
 function toggleAccordion(index) {
-  if (openIndex === index) {
-    openIndex = -1;
-  } else {
-    openIndex = index;
-  }
+  openIndex = openIndex === index ? -1 : index;
 }
 </script>
-  
-  <div class="accordion">
-    {#each items as item, index}
-      <details
-        open={openIndex === index}
-        on:toggle={(event) => {
-          if (event.target instanceof HTMLDetailsElement) {
-            toggleAccordion(index);
-          }
-        }}
+
+<div class="accordion">
+  {#each items as item, index}
+    <div class="accordion-item">
+      <button
+        class="accordion-header"
+        on:click={() => toggleAccordion(index)}
+        aria-expanded={openIndex === index}
       >
-        <summary>
-          {item.title}
-        </summary>
-        <div class="accordion-content">
+        {item.title}
+        <span class="accordion-icon">
+          {openIndex === index ? '▼' : '▶'}
+        </span>
+      </button>
+      {#if openIndex === index}
+        <div class="accordion-content" transition:slide={{ duration: 300 }}>
           {item.content}
         </div>
-      </details>
-    {/each}
-  </div>
+      {/if}
+    </div>
+  {/each}
+</div>
