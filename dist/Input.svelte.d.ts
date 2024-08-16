@@ -6,6 +6,7 @@ declare const __propDef: {
         value?: string;
         label?: string;
         id?: string;
+        icon?: string | undefined;
     };
     events: {
         [evt: string]: CustomEvent<any>;
