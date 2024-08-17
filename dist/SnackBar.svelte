@@ -1,29 +1,32 @@
-<script>import { fade } from "svelte/transition";
-import { createEventDispatcher } from "svelte";
-export let type = "info";
-export let message;
+<script>import { flip } from "svelte/animate";
+import { fade, fly } from "svelte/transition";
+import { toast } from "./services/toast.service.js";
 export let duration = 3e3;
-const dispatch = createEventDispatcher();
-let visible = true;
-function close() {
-  visible = false;
-  dispatch("close");
+export let max = 3;
+function close(id) {
+  toast.remove(id);
 }
-if (duration > 0) {
-  setTimeout(close, duration);
+$: visibleToasts = $toast.slice(-max);
+$: if (duration > 0) {
+  visibleToasts.forEach((toast2) => {
+    setTimeout(() => close(toast2.id), duration);
+  });
 }
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-{#if visible}
+<div class="toast-stack">
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div
-    class="toast {type}"
-    transition:fade={{ duration: 300 }}
-    on:click={close}
-  >
-    <span class="toast-icon {type}"></span>
-    <span class="toast-message">{message}</span>
-  </div>
-{/if}
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  {#each visibleToasts as toast (toast.id)}
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div
+      class="toast {toast.type}"
+      transition:fly="{{ y: 20, duration: 300 }}"
+      animate:flip="{{ duration: 300 }}"
+      on:click={() => close(toast.id)}
+    >
+      <span class="toast-icon {toast.type}"></span>
+      <span class="toast-message">{toast.message}</span>
+    </div>
+  {/each}
+</div>

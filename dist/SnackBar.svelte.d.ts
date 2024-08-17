@@ -1,13 +1,10 @@
 import { SvelteComponent } from "svelte";
 declare const __propDef: {
     props: {
-        type?: "success" | "error" | "warning" | "info";
-        message: string;
         duration?: number;
+        max?: number;
     };
     events: {
-        close: CustomEvent<any>;
-    } & {
         [evt: string]: CustomEvent<any>;
     };
     slots: {};
