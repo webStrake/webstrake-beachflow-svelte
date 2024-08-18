@@ -4,10 +4,10 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build:vite": "vite build",
-		"build": "npm run clean && npm run package && npm run copy && npm run postbuild && npm run git",
+		"build": "npm run local && npm run git",
 		"preview": "vite preview",
 		"package": "svelte-kit sync && svelte-package && publint",
-		"prepublishOnly": "npm run package",
+		"local": "npm run clean && npm run package && npm run copy && npm run postbuild",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "eslint .",
