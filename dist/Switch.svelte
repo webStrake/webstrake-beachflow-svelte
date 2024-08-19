@@ -10,20 +10,18 @@ function toggle() {
 }
 </script>
   
-  <label class="switch-container {size}">
-    <span class="switch-wrapper">
-      <input
-        type="checkbox"
-        bind:checked
-        {disabled}
-        on:change
-        class="switch-input"
-      />
-      <span class="switch-track {color}" class:checked class:disabled>
-        <span class="switch-thumb"></span>
-      </span>
+  <label class="switch-container {size} relative inline-flex items-center">
+    <input
+      type="checkbox"
+      bind:checked
+      {disabled}
+      on:change
+      class="switch-input sr-only"
+    />
+    <span class="switch-track {color} relative inline-block" class:checked class:disabled>
+      <span class="switch-thumb absolute"></span>
     </span>
     {#if label}
-      <span class="switch-label">{label}</span>
+      <span class="switch-label ml-2">{label}</span>
     {/if}
   </label>
