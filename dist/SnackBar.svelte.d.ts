@@ -3,6 +3,7 @@ declare const __propDef: {
     props: {
         duration?: number;
         max?: number;
+        position?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "top-center" | "bottom-center";
     };
     events: {
         [evt: string]: CustomEvent<any>;
