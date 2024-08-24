@@ -18,27 +18,38 @@ function handleClickOutside(event) {
   }
 }
 </script>
-  
-  <svelte:window on:keydown={handleKeydown} />
-  
+
+<svelte:window on:keydown={handleKeydown} />
+
+{#if isOpen}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  {#if isOpen}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="modal-backdrop" on:click={handleClickOutside} transition:fade={{ duration: 200 }}>
-      <div class="modal-container" transition:fly={{ y: -50, duration: 300 }}>
-        <div class="modal-header">
-          <h2 class="modal-title">{title}</h2>
-          <button class="modal-close" on:click={close}>
-            <span class="modal-close-icon"></span>
-          </button>
-        </div>
-        <div class="modal-content">
-          <slot></slot>
-        </div>
-        <div class="modal-footer">
-          <slot name="footer"></slot>
-        </div>
+  <div 
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      on:click={handleClickOutside} 
+      transition:fade={{ duration: 200 }}
+  >
+      <div 
+          class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+          transition:fly={{ y: -50, duration: 300 }}
+      >
+          <div class="flex justify-between items-center p-4 border-b border-gray-200">
+              <h2 class="text-xl font-semibold text-gray-800">{title}</h2>
+              <button 
+                  class="p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  on:click={close}
+              >
+                  <span class="material-symbols-rounded text-2xl text-gray-500">close</span>
+              </button>
+          </div>
+          <div class="flex-grow overflow-y-auto p-4">
+              <slot></slot>
+          </div>
+          {#if $$slots.footer}
+              <div class="border-t border-gray-200 p-4">
+                  <slot name="footer"></slot>
+              </div>
+          {/if}
       </div>
-    </div>
-  {/if}
+  </div>
+{/if}
