@@ -4,6 +4,7 @@ declare const __propDef: {
         isOpen?: boolean;
         title?: string;
         closeOnClickOutside?: boolean;
+        modalClass?: string;
     };
     events: {
         close: CustomEvent<any>;

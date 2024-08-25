@@ -21,5 +21,7 @@ import Skeleton from './Skeleton.svelte';
 import Layout from './Layout.svelte';
 import Chip from './Chip.svelte';
 import InputChips from './InputChips.svelte';
+import InfoBlock from './InfoBlock.svelte';
+import Alert from './Alert.svelte';
 import { toast } from './services/toast.service.js';
-export { Input, Accordion, AccordionItem, InteractiveStepper, SnackBar, toast, Dropdown, FileInput, DropZone, Modal, Menu, Pagination, Popover, Progress, Radio, RadioGroup, Range, Switch, Tabs, Tooltip, Skeleton, Layout, Chip, InputChips };
+export { Input, Accordion, AccordionItem, InteractiveStepper, SnackBar, toast, Dropdown, FileInput, DropZone, Modal, Menu, Pagination, Popover, Progress, Radio, RadioGroup, Range, Switch, Tabs, Tooltip, Skeleton, Layout, Chip, InputChips, InfoBlock, Alert };
