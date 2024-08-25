@@ -3,7 +3,7 @@
 export let title = "";
 export let description = "";
 export let closable = false;
-let visible = true;
+export let visible = true;
 function closeAlert() {
   visible = false;
 }

@@ -5,6 +5,7 @@ declare const __propDef: {
         title?: string;
         description?: string;
         closable?: boolean;
+        visible?: boolean;
     };
     events: {
         [evt: string]: CustomEvent<any>;
