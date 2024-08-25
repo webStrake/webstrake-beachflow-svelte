@@ -3,7 +3,7 @@ declare const __propDef: {
     props: {
         type?: string;
         placeholder?: string;
-        value?: string;
+        value?: any;
         label?: string;
         id?: string;
         icon?: string | undefined;
