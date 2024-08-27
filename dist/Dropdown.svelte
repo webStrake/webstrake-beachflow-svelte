@@ -55,7 +55,7 @@ $: selectedLabel = options.find((o) => o.value === selected)?.label || placehold
 
 <svelte:window on:click={handleClickOutside} />
 
-<div class="dropdown z-50">
+<div class="dropdown">
   {#if label}
     <label for="dropdown-toggle" class="dropdown-label">{label}</label>
   {/if}
