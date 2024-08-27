@@ -1,5 +1,5 @@
 <script>export let type = "text";
-export let placeholder = " ";
+export let placeholder = "";
 export let value = "";
 export let label = "";
 export let id = "";
@@ -10,37 +10,81 @@ if (id === "") {
   id = Math.random().toString(36).substring(7);
 }
 const isTextarea = type === "textarea";
+const isCheckbox = type === "checkbox";
+const isDateTime = type === "date" || type === "time";
+let focused = false;
+function handleFocus() {
+  focused = true;
+}
+function handleBlur() {
+  focused = false;
+}
 function typeAction(node) {
-  if (!isTextarea) {
+  if (!isTextarea && !isCheckbox) {
     node.type = type;
   }
 }
+$: effectivePlaceholder = focused ? placeholder : " ";
 </script>
 
-<div class="input-container">
-  {#if icon && !isTextarea}
-    <span class="input-icon">{icon}</span>
-  {/if}
-  {#if isTextarea}
-    <textarea
+{#if isCheckbox}
+  <div class="checkbox-container">
+    <input
+      type="checkbox"
+      {id}
+      class="checkbox-input"
+      bind:checked={value}
+      {required}
+    />
+    <span class="checkbox-custom"></span>
+    <label for={id} class="checkbox-label">{label}</label>
+  </div>
+{:else if isDateTime}
+  <div class="date-time-container">
+    <input
       use:typeAction
       {id}
+      class="date-time-input"
+      placeholder={effectivePlaceholder}
+      bind:value
+      {required}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
+    />
+    {#if icon}
+      <span class="date-time-icon">{icon}</span>
+    {/if}
+    <label for={id} class="date-time-label">{label}</label>
+  </div>
+{:else if isTextarea}
+  <div class="input-container">
+    <textarea
+      {id}
       class="textarea-field"
-      {placeholder}
+      placeholder={effectivePlaceholder}
       bind:value
       {required}
       {rows}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
     ></textarea>
-    <label for="{id}" class="textarea-label">{label}</label>
-  {:else}
+    <label for={id} class="textarea-label">{label}</label>
+  </div>
+{:else}
+  <div class="input-container">
+    {#if icon}
+      <span class="input-icon">{icon}</span>
+    {/if}
     <input
       use:typeAction
       {id}
       class="input-field"
-      {placeholder}
+      placeholder={effectivePlaceholder}
       bind:value
       {required}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
     />
-    <label for="{id}" class="input-label">{label}</label>
-  {/if}
-</div>
+    <label for={id} class="input-label">{label}</label>
+  </div>
+{/if}
