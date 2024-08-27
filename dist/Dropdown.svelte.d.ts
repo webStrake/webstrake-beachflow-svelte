@@ -2,12 +2,13 @@ import { SvelteComponent } from "svelte";
 declare const __propDef: {
     props: {
         options?: {
-            value: string;
+            value: any;
             label: string;
         }[];
-        selected?: string;
+        selected?: any;
         placeholder?: string;
         searchable?: boolean;
+        label?: string;
         loadMore?: (() => Promise<void>) | null;
     };
     events: {

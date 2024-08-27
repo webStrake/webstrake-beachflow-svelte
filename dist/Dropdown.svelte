@@ -4,6 +4,7 @@ export let options = [];
 export let selected = "";
 export let placeholder = "Select an option";
 export let searchable = false;
+export let label = "";
 export let loadMore = null;
 const dispatch = createEventDispatcher();
 let isOpen = false;
@@ -31,7 +32,9 @@ function select(value) {
   dispatch("change", { value });
 }
 function handleClickOutside(event) {
-  if (isOpen && !event.composedPath().some((el) => el instanceof Element && el.classList.contains("dropdown"))) {
+  if (isOpen && !event.composedPath().some(
+    (el) => el instanceof Element && el.classList.contains("dropdown")
+  )) {
     isOpen = false;
     searchTerm = "";
   }
@@ -49,52 +52,60 @@ async function handleScroll(e) {
 }
 $: selectedLabel = options.find((o) => o.value === selected)?.label || placeholder;
 </script>
-  
-  <svelte:window on:click={handleClickOutside} />
-  
-  <div class="dropdown">
-	<button 
-	  type="button" 
-	  class="dropdown-toggle" 
-	  aria-haspopup="listbox" 
-	  aria-expanded={isOpen} 
-	  on:click={toggle}
-	>
-	  {selectedLabel}
-	  <span class="dropdown-icon" aria-hidden="true">expand_more</span>
-	</button>
-	
-	{#if isOpen}
-	  <div class="dropdown-menu" role="listbox" transition:slide={{ duration: 300 }} on:scroll={handleScroll}>
-		{#if searchable}
-		  <div class="dropdown-search">
-			<input 
-			  type="text" 
-			  placeholder="Search..." 
-			  bind:value={searchTerm}
-			  class="dropdown-search-input"
-			/>
-		  </div>
-		{/if}
-		<ul>
-		  {#each filteredOptions as option}
-			<li>
-			  <button 
-				type="button"
-				class="dropdown-item" 
-				class:selected={selected === option.value}
-				role="option"
-				aria-selected={selected === option.value}
-				on:click={() => select(option.value)}
-			  >
-				{option.label}
-			  </button>
-			</li>
-		  {/each}
-		</ul>
-		{#if isLoading}
-		  <div class="dropdown-loading">Loading...</div>
-		{/if}
-	  </div>
-	{/if}
-  </div>
+
+<svelte:window on:click={handleClickOutside} />
+
+<div class="dropdown">
+  {#if label}
+    <label for="dropdown-toggle" class="dropdown-label">{label}</label>
+  {/if}
+  <button
+    type="button"
+    class="dropdown-toggle"
+    aria-haspopup="listbox"
+    aria-expanded={isOpen}
+    on:click={toggle}
+  >
+    {selectedLabel}
+    <span class="dropdown-icon" aria-hidden="true">expand_more</span>
+  </button>
+
+  {#if isOpen}
+    <div
+      class="dropdown-menu"
+      role="listbox"
+      transition:slide={{ duration: 300 }}
+      on:scroll={handleScroll}
+    >
+      {#if searchable}
+        <div class="dropdown-search">
+          <input
+            type="text"
+            placeholder="Search..."
+            bind:value={searchTerm}
+            class="dropdown-search-input"
+          />
+        </div>
+      {/if}
+      <ul>
+        {#each filteredOptions as option}
+          <li>
+            <button
+              type="button"
+              class="dropdown-item"
+              class:selected={selected === option.value}
+              role="option"
+              aria-selected={selected === option.value}
+              on:click={() => select(option.value)}
+            >
+              {option.label}
+            </button>
+          </li>
+        {/each}
+      </ul>
+      {#if isLoading}
+        <div class="dropdown-loading">Loading...</div>
+      {/if}
+    </div>
+  {/if}
+</div>
