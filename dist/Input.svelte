@@ -28,7 +28,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
 </script>
 
 {#if isCheckbox}
-  <div class="checkbox-container">
+  <label class="checkbox-container" for={id}>
     <input
       type="checkbox"
       {id}
@@ -37,8 +37,8 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {required}
     />
     <span class="checkbox-custom"></span>
-    <label for={id} class="checkbox-label">{label}</label>
-  </div>
+    <span class="checkbox-label">{label}</span>
+  </label>
 {:else if isDateTime}
   <div class="date-time-container">
     <input
