@@ -2,7 +2,7 @@
 export let accept = "";
 export let multiple = false;
 export let placeholder = "Choose file(s)";
-let files = null;
+export let files = null;
 const dispatch = createEventDispatcher();
 function handleChange(event) {
   const target = event.target;

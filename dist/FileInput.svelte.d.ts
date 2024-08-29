@@ -4,6 +4,7 @@ declare const __propDef: {
         accept?: string;
         multiple?: boolean;
         placeholder?: string;
+        files?: FileList | null;
     };
     events: {
         change: CustomEvent<any>;
