@@ -9,6 +9,7 @@ declare const __propDef: {
         icon?: string | undefined;
         required?: boolean;
         rows?: number;
+        disabled?: boolean;
     };
     events: {
         [evt: string]: CustomEvent<any>;

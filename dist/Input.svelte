@@ -6,6 +6,7 @@ export let id = "";
 export let icon = void 0;
 export let required = false;
 export let rows = 3;
+export let disabled = false;
 if (id === "") {
   id = Math.random().toString(36).substring(7);
 }
@@ -34,6 +35,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {id}
       class="checkbox-input"
       bind:checked={value}
+      {disabled}
       {required}
     />
     <span class="checkbox-custom"></span>
@@ -48,6 +50,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       placeholder={effectivePlaceholder}
       bind:value
       {required}
+      {disabled}
       on:focus={handleFocus}
       on:blur={handleBlur}
     />
@@ -65,6 +68,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       bind:value
       {required}
       {rows}
+      {disabled}
       on:focus={handleFocus}
       on:blur={handleBlur}
     ></textarea>
@@ -82,6 +86,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       placeholder={effectivePlaceholder}
       bind:value
       {required}
+      {disabled}
       on:focus={handleFocus}
       on:blur={handleBlur}
     />
