@@ -1,8 +1,8 @@
 import { SvelteComponent } from "svelte";
 declare const __propDef: {
     props: {
-        value: string;
-        group: string | null;
+        value: any;
+        group: any;
         disabled?: boolean;
         color?: "primary" | "secondary" | "tertiary" | "success" | "warning" | "error";
     };
