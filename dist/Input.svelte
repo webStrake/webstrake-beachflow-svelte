@@ -7,6 +7,9 @@ export let icon = void 0;
 export let required = false;
 export let rows = 3;
 export let disabled = false;
+export let step = void 0;
+export let min = void 0;
+export let max = void 0;
 if (id === "") {
   id = Math.random().toString(36).substring(7);
 }
@@ -37,6 +40,9 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       bind:checked={value}
       {disabled}
       {required}
+      {step}
+      {min}
+      {max}
     />
     <span class="checkbox-custom"></span>
     <span class="checkbox-label">{label}</span>
@@ -87,6 +93,9 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       bind:value
       {required}
       {disabled}
+      {step}
+      {min}
+      {max}
       on:focus={handleFocus}
       on:blur={handleBlur}
     />

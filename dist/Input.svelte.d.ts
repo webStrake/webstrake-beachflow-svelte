@@ -10,6 +10,9 @@ declare const __propDef: {
         required?: boolean;
         rows?: number;
         disabled?: boolean;
+        step?: any;
+        min?: any;
+        max?: any;
     };
     events: {
         [evt: string]: CustomEvent<any>;
