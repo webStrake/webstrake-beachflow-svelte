@@ -10,6 +10,7 @@ declare const __propDef: {
         searchable?: boolean;
         label?: string;
         loadMore?: (() => Promise<void>) | null;
+        multiple?: boolean;
     };
     events: {
         change: CustomEvent<any>;

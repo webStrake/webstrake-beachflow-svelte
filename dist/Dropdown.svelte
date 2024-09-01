@@ -2,10 +2,11 @@
 import { createEventDispatcher } from "svelte";
 export let options = [];
 export let selected = "";
-export let placeholder = "Select an option";
+export let placeholder = "Select options";
 export let searchable = false;
 export let label = "";
 export let loadMore = null;
+export let multiple = false;
 const dispatch = createEventDispatcher();
 let isOpen = false;
 let searchTerm = "";
@@ -27,9 +28,22 @@ function toggle() {
   }
 }
 function select(value) {
-  selected = value;
-  isOpen = false;
-  dispatch("change", { value });
+  if (multiple) {
+    if (Array.isArray(selected)) {
+      const index = selected.indexOf(value);
+      if (index === -1) {
+        selected = [...selected, value];
+      } else {
+        selected = selected.filter((v) => v !== value);
+      }
+    } else {
+      selected = [selected, value];
+    }
+  } else {
+    selected = value;
+    isOpen = false;
+  }
+  dispatch("change", { value: selected });
 }
 function handleClickOutside(event) {
   if (isOpen && !event.composedPath().some(
@@ -50,7 +64,9 @@ async function handleScroll(e) {
     }
   }
 }
-$: selectedLabel = options.find((o) => o.value === selected)?.label || placeholder;
+$: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
+$: selectedLabels = options.filter((o) => selectedValues.includes(o.value)).map((o) => o.label);
+$: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder;
 </script>
 
 <svelte:window on:click={handleClickOutside} />
@@ -66,7 +82,7 @@ $: selectedLabel = options.find((o) => o.value === selected)?.label || placehold
     aria-expanded={isOpen}
     on:click={toggle}
   >
-    {selectedLabel}
+    {displayValue}
     <span class="dropdown-icon" aria-hidden="true">expand_more</span>
   </button>
 
@@ -93,12 +109,15 @@ $: selectedLabel = options.find((o) => o.value === selected)?.label || placehold
             <button
               type="button"
               class="dropdown-item"
-              class:selected={selected === option.value}
+              class:selected={selectedValues.includes(option.value)}
               role="option"
-              aria-selected={selected === option.value}
+              aria-selected={selectedValues.includes(option.value)}
               on:click={() => select(option.value)}
             >
               {option.label}
+              {#if multiple && selectedValues.includes(option.value)}
+                <span class="dropdown-checkmark">✓</span>
+              {/if}
             </button>
           </li>
         {/each}
@@ -109,3 +128,10 @@ $: selectedLabel = options.find((o) => o.value === selected)?.label || placehold
     </div>
   {/if}
 </div>
+
+<style>
+  /* Add this to your existing styles */
+  .dropdown-checkmark {
+    margin-left: auto;
+  }
+</style>
