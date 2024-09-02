@@ -1,5 +1,4 @@
-<script>import { flip } from "svelte/animate";
-import { fade, fly } from "svelte/transition";
+<script>import { fade, fly } from "svelte/transition";
 import { toast } from "./services/toast.service.js";
 export let duration = 3e3;
 export let max = 3;
@@ -32,9 +31,7 @@ function getPositionClass(pos) {
   }
 }
 function getFlightDirection(pos) {
-  if (pos.startsWith("top")) return { y: -20 };
-  if (pos.startsWith("bottom")) return { y: 20 };
-  return { x: pos.endsWith("left") ? -20 : 20 };
+  return pos.startsWith("top") ? -20 : 20;
 }
 </script>
 
@@ -44,8 +41,8 @@ function getFlightDirection(pos) {
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
       class="toast {toast.type}"
-      transition:fly="{{ ...getFlightDirection(position), duration: 300 }}"
-      animate:flip="{{ duration: 300 }}"
+      in:fly="{{ y: getFlightDirection(position), duration: 300 }}"
+      out:fly="{{ y: -getFlightDirection(position), duration: 300 }}"
       on:click={() => close(toast.id)}
     >
       <span class="toast-icon {toast.type}"></span>
