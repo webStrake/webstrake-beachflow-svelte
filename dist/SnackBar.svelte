@@ -30,19 +30,22 @@ function getPositionClass(pos) {
       return "bottom-4 left-1/2 -translate-x-1/2";
   }
 }
-function getFlightDirection(pos) {
-  return pos.startsWith("top") ? -20 : 20;
+function getTransitionParams(pos) {
+  const y = pos.startsWith("top") ? -10 : 10;
+  return {
+    y,
+    duration: 300,
+    opacity: 0.5
+  };
 }
 </script>
 
 <div class="toast-stack {getPositionClass(position)}">
   {#each visibleToasts as toast (toast.id)}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
       class="toast {toast.type}"
-      in:fly="{{ y: getFlightDirection(position), duration: 300 }}"
-      out:fly="{{ y: -getFlightDirection(position), duration: 300 }}"
+      in:fly={getTransitionParams(position)}
+      out:fade={{ duration: 200 }}
       on:click={() => close(toast.id)}
     >
       <span class="toast-icon {toast.type}"></span>
@@ -50,3 +53,31 @@ function getFlightDirection(pos) {
     </div>
   {/each}
 </div>
+
+<style>
+  .toast-stack {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 400px;
+    width: 100%;
+    z-index: 9999;
+  }
+
+  .toast {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .toast-icon {
+    margin-right: 0.5rem;
+  }
+
+</style>
