@@ -16,6 +16,7 @@ declare const __propDef: {
         lang?: string;
     };
     events: {
+        input: CustomEvent<any>;
         change: CustomEvent<any>;
     } & {
         [evt: string]: CustomEvent<any>;

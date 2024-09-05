@@ -33,7 +33,11 @@ function typeAction(node) {
 }
 function onInput(event) {
   const target = event.target;
-  dispatch("change", target.value);
+  dispatch("input", { value: target.value });
+}
+function onChange(event) {
+  const target = event.target;
+  dispatch("change", { value: target.value });
 }
 $: effectivePlaceholder = focused ? placeholder : " ";
 </script>
@@ -53,7 +57,8 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {lang}
       on:focus={handleFocus}
       on:blur={handleBlur}
-      on:change={onInput}
+      on:input={onInput}
+      on:change={onChange}
     />
     <span class="checkbox-custom"></span>
     <span class="checkbox-label">{label}</span>
@@ -74,7 +79,8 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {lang}
       on:focus={handleFocus}
       on:blur={handleBlur}
-      on:change={onInput}
+      on:input={onInput}
+      on:change={onChange}
     />
     {#if icon}
       <span class="date-time-icon">{icon}</span>
@@ -94,7 +100,8 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {lang}
       on:focus={handleFocus}
       on:blur={handleBlur}
-      on:change={onInput}
+      on:input={onInput}
+      on:change={onChange}
     ></textarea>
     <label for={id} class="textarea-label">{label}</label>
   </div>
@@ -117,7 +124,8 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {lang}
       on:focus={handleFocus}
       on:blur={handleBlur}
-      on:change={onInput}
+      on:input={onInput}
+      on:change={onChange}
     />
     <label for={id} class="input-label">{label}</label>
   </div>
