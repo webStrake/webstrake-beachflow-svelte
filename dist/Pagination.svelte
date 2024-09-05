@@ -1,6 +1,7 @@
 <script>import { createEventDispatcher } from "svelte";
 export let total;
 export let perPage;
+export let totalItems;
 export let page;
 export let limitOpts = [10, 25, 50, 100];
 export let showCount = false;
@@ -40,7 +41,7 @@ function changeLimit(event) {
 
   {#if showCount}
     <div class="pagination-center">
-      <span>Showing {start}-{end} of {total} items</span>
+      <span>Showing {start}-{end} of {totalItems??total} items</span>
     </div>
   {/if}
 
