@@ -8,7 +8,7 @@ export let showCount = false;
 const dispatch = createEventDispatcher();
 $: pages = Math.ceil(total / perPage);
 $: start = (page - 1) * perPage + 1;
-$: end = Math.min(page * perPage, total);
+$: end = Math.min(page * perPage, totalItems ?? total);
 function getPages(cur, tot) {
   if (tot <= 5) return Array.from({ length: tot }, (_, i) => i + 1);
   if (cur <= 3) return [1, 2, 3, 4, 5];
@@ -41,7 +41,7 @@ function changeLimit(event) {
 
   {#if showCount}
     <div class="pagination-center">
-      <span>Showing {start}-{end} of {totalItems??total} items</span>
+      <span>Showing {start}-{end} of {totalItems ?? total} items</span>
     </div>
   {/if}
 
