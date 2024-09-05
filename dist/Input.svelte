@@ -19,6 +19,7 @@ const isTextarea = type === "textarea";
 const isCheckbox = type === "checkbox";
 const isDateTime = type === "date" || type === "time";
 let focused = false;
+let displayValue = "";
 const dispatch = createEventDispatcher();
 function handleFocus() {
   focused = true;
@@ -34,6 +35,22 @@ function typeAction(node) {
 function onInput(event) {
   const target = event.target;
   dispatch("change", target.value);
+}
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+}
+$: {
+  if (type === "date" && value) {
+    displayValue = formatDate(value);
+  } else {
+    displayValue = value;
+  }
 }
 $: effectivePlaceholder = focused ? placeholder : " ";
 </script>
@@ -65,7 +82,11 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {id}
       class="date-time-input"
       placeholder={effectivePlaceholder}
-      bind:value
+      value={displayValue}
+      on:input={(e) => {
+        value = e.currentTarget.value;
+        displayValue = type === "date" ? formatDate(value) : value;
+      }}
       {required}
       {disabled}
       {step}
@@ -77,7 +98,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       on:change={onInput}
     />
     {#if icon}
-      <span class="date-time-icon">{icon}</span>
+      <span class="date-time-icon material-symbols-rounded">{icon}</span>
     {/if}
     <label for={id} class="date-time-label">{label}</label>
   </div>
@@ -101,14 +122,18 @@ $: effectivePlaceholder = focused ? placeholder : " ";
 {:else}
   <div class="input-container">
     {#if icon}
-      <span class="input-icon">{icon}</span>
+      <span class="input-icon material-symbols-rounded">{icon}</span>
     {/if}
     <input
       use:typeAction
       {id}
       class="input-field"
       placeholder={effectivePlaceholder}
-      bind:value
+      value={displayValue}
+      on:input={(e) => {
+        value = e.currentTarget.value;
+        displayValue = type === "date" ? formatDate(value) : value;
+      }}
       {required}
       {disabled}
       {step}
