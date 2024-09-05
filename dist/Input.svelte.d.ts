@@ -13,8 +13,11 @@ declare const __propDef: {
         step?: any;
         min?: any;
         max?: any;
+        lang?: string;
     };
     events: {
+        change: CustomEvent<any>;
+    } & {
         [evt: string]: CustomEvent<any>;
     };
     slots: {};

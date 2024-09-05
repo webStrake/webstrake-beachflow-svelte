@@ -1,4 +1,5 @@
-<script>export let type = "text";
+<script>import { createEventDispatcher } from "svelte";
+export let type = "text";
 export let placeholder = "";
 export let value = "";
 export let label = "";
@@ -10,6 +11,7 @@ export let disabled = false;
 export let step = void 0;
 export let min = void 0;
 export let max = void 0;
+export let lang = "en-IN";
 if (id === "") {
   id = Math.random().toString(36).substring(7);
 }
@@ -17,6 +19,7 @@ const isTextarea = type === "textarea";
 const isCheckbox = type === "checkbox";
 const isDateTime = type === "date" || type === "time";
 let focused = false;
+const dispatch = createEventDispatcher();
 function handleFocus() {
   focused = true;
 }
@@ -27,6 +30,10 @@ function typeAction(node) {
   if (!isTextarea && !isCheckbox) {
     node.type = type;
   }
+}
+function onInput(event) {
+  const target = event.target;
+  dispatch("change", target.value);
 }
 $: effectivePlaceholder = focused ? placeholder : " ";
 </script>
@@ -43,6 +50,10 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {step}
       {min}
       {max}
+      {lang}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
+      on:change={onInput}
     />
     <span class="checkbox-custom"></span>
     <span class="checkbox-label">{label}</span>
@@ -57,8 +68,13 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       bind:value
       {required}
       {disabled}
+      {step}
+      {min}
+      {max}
+      {lang}
       on:focus={handleFocus}
       on:blur={handleBlur}
+      on:change={onInput}
     />
     {#if icon}
       <span class="date-time-icon">{icon}</span>
@@ -75,8 +91,10 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {required}
       {rows}
       {disabled}
+      {lang}
       on:focus={handleFocus}
       on:blur={handleBlur}
+      on:change={onInput}
     ></textarea>
     <label for={id} class="textarea-label">{label}</label>
   </div>
@@ -96,8 +114,10 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {step}
       {min}
       {max}
+      {lang}
       on:focus={handleFocus}
       on:blur={handleBlur}
+      on:change={onInput}
     />
     <label for={id} class="input-label">{label}</label>
   </div>
