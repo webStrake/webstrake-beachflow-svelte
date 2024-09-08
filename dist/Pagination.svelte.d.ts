@@ -3,7 +3,7 @@ declare const __propDef: {
     props: {
         total: number;
         perPage: number;
-        totalItems: number;
+        totalItems?: number | null;
         page: number;
         limitOpts?: number[];
         showCount?: boolean;
