@@ -7,11 +7,14 @@ export let searchable = false;
 export let label = "";
 export let loadMore = null;
 export let multiple = false;
+export let required = false;
 const dispatch = createEventDispatcher();
 let isOpen = false;
 let searchTerm = "";
 let filteredOptions = options;
 let isLoading = false;
+let focusedIndex = -1;
+let buttonElement;
 $: {
   if (searchable) {
     filteredOptions = options.filter(
@@ -26,6 +29,7 @@ function toggle() {
   if (!isOpen) {
     searchTerm = "";
   }
+  validateDropdown();
 }
 function select(value) {
   if (multiple) {
@@ -44,6 +48,7 @@ function select(value) {
     isOpen = false;
   }
   dispatch("change", { value: selected });
+  validateDropdown();
 }
 function handleClickOutside(event) {
   if (isOpen && !event.composedPath().some(
@@ -51,6 +56,7 @@ function handleClickOutside(event) {
   )) {
     isOpen = false;
     searchTerm = "";
+    validateDropdown();
   }
 }
 async function handleScroll(e) {
@@ -64,12 +70,49 @@ async function handleScroll(e) {
     }
   }
 }
+function handleKeydown(event) {
+  if (!isOpen) return;
+  switch (event.key) {
+    case "ArrowDown":
+      event.preventDefault();
+      focusedIndex = Math.min(focusedIndex + 1, filteredOptions.length - 1);
+      break;
+    case "ArrowUp":
+      event.preventDefault();
+      focusedIndex = Math.max(focusedIndex - 1, 0);
+      break;
+    case "Enter":
+      event.preventDefault();
+      if (focusedIndex >= 0) {
+        select(filteredOptions[focusedIndex].value);
+      }
+      break;
+    case "Escape":
+      event.preventDefault();
+      isOpen = false;
+      validateDropdown();
+      break;
+  }
+}
+function handleMenuClick(event) {
+  event.stopPropagation();
+}
+function validateDropdown() {
+  if (required && buttonElement) {
+    if (multiple ? selectedValues.length === 0 : !selected) {
+      buttonElement.setCustomValidity("Please select an option");
+    } else {
+      buttonElement.setCustomValidity("");
+    }
+    buttonElement.reportValidity();
+  }
+}
 $: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
 $: selectedLabels = options.filter((o) => selectedValues.includes(o.value)).map((o) => o.label);
 $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder;
 </script>
 
-<svelte:window on:click={handleClickOutside} />
+<svelte:window on:click={handleClickOutside} on:keydown={handleKeydown} />
 
 <div class="dropdown">
   {#if label}
@@ -77,21 +120,26 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
   {/if}
   <button
     type="button"
+    id="dropdown-toggle"
     class="dropdown-toggle"
     aria-haspopup="listbox"
     aria-expanded={isOpen}
     on:click={toggle}
+    bind:this={buttonElement}
   >
     {displayValue}
     <span class="dropdown-icon" aria-hidden="true">expand_more</span>
   </button>
 
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if isOpen}
+    <!-- svelte-ignore a11y-interactive-supports-focus -->
     <div
       class="dropdown-menu"
       role="listbox"
       transition:slide={{ duration: 300 }}
       on:scroll={handleScroll}
+      on:click={handleMenuClick}
     >
       {#if searchable}
         <div class="dropdown-search">
@@ -104,12 +152,13 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
         </div>
       {/if}
       <ul>
-        {#each filteredOptions as option}
+        {#each filteredOptions as option, index}
           <li>
             <button
               type="button"
               class="dropdown-item"
               class:selected={selectedValues.includes(option.value)}
+              class:focused={index === focusedIndex}
               role="option"
               aria-selected={selectedValues.includes(option.value)}
               on:click={() => select(option.value)}
@@ -133,5 +182,8 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
   /* Add this to your existing styles */
   .dropdown-checkmark {
     margin-left: auto;
+  }
+  .dropdown-item.focused {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 </style>
