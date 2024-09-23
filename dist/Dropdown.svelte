@@ -161,7 +161,7 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
               class:focused={index === focusedIndex}
               role="option"
               aria-selected={selectedValues.includes(option.value)}
-              on:click={() => select(option.value)}
+              on:click|stopPropagation={() => select(option.value)}
             >
               {option.label}
               {#if multiple && selectedValues.includes(option.value)}
