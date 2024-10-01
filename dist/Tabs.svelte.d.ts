@@ -9,6 +9,8 @@ declare const __propDef: {
         color?: "primary" | "secondary" | "tertiary" | "success" | "warning" | "error";
     };
     events: {
+        change: CustomEvent<any>;
+    } & {
         [evt: string]: CustomEvent<any>;
     };
     slots: {

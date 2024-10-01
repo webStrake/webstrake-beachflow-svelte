@@ -1,9 +1,12 @@
-<script>export let tabs = [];
+<script>import { createEventDispatcher } from "svelte";
+export let tabs = [];
 export let activeTab = tabs[0]?.id || "";
 export let color = "primary";
 let tabsContainer;
+const dispatch = createEventDispatcher();
 function setActiveTab(tabId) {
   activeTab = tabId;
+  dispatch("change", { value: activeTab });
 }
 $: if (tabsContainer && activeTab) {
   const activeTabElement = tabsContainer.querySelector(`[data-tab-id="${activeTab}"]`);
