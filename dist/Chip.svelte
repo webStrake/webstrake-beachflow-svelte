@@ -28,7 +28,7 @@ const dispatch = createEventDispatcher();
   {/if}
 </div>
 {:else if type==='button'}
-<button class="chip-button {color} {outlined ? 'outlined' : ''}" class:disabled {disabled} on:click={onClick}>
+<button class="chip {color} {outlined ? 'outlined' : ''}" class:disabled {disabled} on:click={onClick}>
   {#if icon}
     <span class="chip-icon material-symbols-rounded">{icon}</span>
   {/if}
