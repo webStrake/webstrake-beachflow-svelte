@@ -6,6 +6,8 @@ declare const __propDef: {
         outlined?: boolean;
         closable?: boolean;
         icon?: string | null;
+        type?: string;
+        disabled?: boolean;
     };
     events: {
         [evt: string]: CustomEvent<any>;
