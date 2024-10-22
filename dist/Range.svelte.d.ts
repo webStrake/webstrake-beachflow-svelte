@@ -10,6 +10,8 @@ declare const __propDef: {
         showValue?: boolean;
     };
     events: {
+        change: CustomEvent<any>;
+    } & {
         [evt: string]: CustomEvent<any>;
     };
     slots: {};
