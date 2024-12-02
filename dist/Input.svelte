@@ -12,6 +12,7 @@ export let step = void 0;
 export let min = void 0;
 export let max = void 0;
 export let lang = "en-IN";
+export let error = null;
 if (id === "") {
   id = Math.random().toString(36).substring(7);
 }
@@ -48,6 +49,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       type="checkbox"
       {id}
       class="checkbox-input"
+      class:error={error !== null}
       bind:checked={value}
       {disabled}
       {required}
@@ -62,6 +64,9 @@ $: effectivePlaceholder = focused ? placeholder : " ";
     />
     <span class="checkbox-custom"></span>
     <span class="checkbox-label">{label}</span>
+    {#if error}
+      <span class="error-message">{error}</span>
+    {/if}
   </label>
 {:else if isDateTime}
   <div class="date-time-container">
@@ -69,6 +74,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       use:typeAction
       {id}
       class="date-time-input"
+      class:error={error !== null}
       placeholder={effectivePlaceholder}
       bind:value
       {required}
@@ -86,12 +92,16 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       <span class="date-time-icon">{icon}</span>
     {/if}
     <label for={id} class="date-time-label">{label}</label>
+    {#if error}
+      <span class="error-message">{error}</span>
+    {/if}
   </div>
 {:else if isTextarea}
   <div class="input-container">
     <textarea
       {id}
       class="textarea-field"
+      class:error={error !== null}
       placeholder={effectivePlaceholder}
       bind:value
       {required}
@@ -104,6 +114,9 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       on:change={onChange}
     ></textarea>
     <label for={id} class="textarea-label">{label}</label>
+    {#if error}
+      <span class="error-message">{error}</span>
+    {/if}
   </div>
 {:else}
   <div class="input-container">
@@ -114,6 +127,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       use:typeAction
       {id}
       class="input-field"
+      class:error={error !== null}
       placeholder={effectivePlaceholder}
       bind:value
       {required}
@@ -128,5 +142,8 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       on:change={onChange}
     />
     <label for={id} class="input-label">{label}</label>
+    {#if error}
+      <span class="error-message">{error}</span>
+    {/if}
   </div>
 {/if}

@@ -12,6 +12,7 @@ declare const __propDef: {
         loadMore?: (() => Promise<void>) | null;
         multiple?: boolean;
         required?: boolean;
+        error?: string | null;
     };
     events: {
         change: CustomEvent<any>;

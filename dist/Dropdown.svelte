@@ -8,6 +8,7 @@ export let label = "";
 export let loadMore = null;
 export let multiple = false;
 export let required = false;
+export let error = null;
 const dispatch = createEventDispatcher();
 let isOpen = false;
 let searchTerm = "";
@@ -116,12 +117,17 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
 
 <div class="dropdown">
   {#if label}
-    <label for="dropdown-toggle" class="dropdown-label">{label}</label>
+    <label
+      for="dropdown-toggle"
+      class="dropdown-label"
+      class:error={error !== null}>{label}</label
+    >
   {/if}
   <button
     type="button"
     id="dropdown-toggle"
     class="dropdown-toggle"
+    class:error={error !== null}
     aria-haspopup="listbox"
     aria-expanded={isOpen}
     on:click={toggle}
@@ -130,6 +136,10 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     {displayValue}
     <span class="dropdown-icon" aria-hidden="true">expand_more</span>
   </button>
+
+  {#if error}
+    <span class="dropdown-error">{error}</span>
+  {/if}
 
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if isOpen}
@@ -177,13 +187,3 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     </div>
   {/if}
 </div>
-
-<style>
-  /* Add this to your existing styles */
-  .dropdown-checkmark {
-    margin-left: auto;
-  }
-  .dropdown-item.focused {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-</style>

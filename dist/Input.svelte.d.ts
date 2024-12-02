@@ -14,6 +14,7 @@ declare const __propDef: {
         min?: any;
         max?: any;
         lang?: string;
+        error?: string | null;
     };
     events: {
         input: CustomEvent<any>;
