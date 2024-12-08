@@ -1,6 +1,6 @@
 {
 	"name": "@webstrake/beachflow-svelte",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"scripts": {
 		"dev": "vite dev",
 		"build:vite": "vite build",
@@ -28,7 +28,7 @@
 		"!dist/**/*.spec.*"
 	],
 	"peerDependencies": {
-		"svelte": "^4.0.0"
+		"svelte": "^4.2.7"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
