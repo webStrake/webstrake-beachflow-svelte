@@ -13,6 +13,8 @@ export let min = void 0;
 export let max = void 0;
 export let lang = "en-IN";
 export let error = null;
+export let showCharacterCount = false;
+export let maxLength = void 0;
 if (id === "") {
   id = Math.random().toString(36).substring(7);
 }
@@ -41,6 +43,8 @@ function onChange(event) {
   dispatch("change", { value: target.value });
 }
 $: effectivePlaceholder = focused ? placeholder : " ";
+$: characterCount = typeof value === "string" ? value.length : 0;
+$: isExceeded = maxLength ? characterCount > maxLength : false;
 </script>
 
 {#if isCheckbox}
@@ -108,6 +112,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {rows}
       {disabled}
       {lang}
+      maxlength={maxLength}
       on:focus={handleFocus}
       on:blur={handleBlur}
       on:input={onInput}
@@ -116,6 +121,11 @@ $: effectivePlaceholder = focused ? placeholder : " ";
     <label for={id} class="textarea-label">{label}</label>
     {#if error}
       <span class="error-message">{error}</span>
+    {/if}
+    {#if showCharacterCount}
+      <span class="character-count" class:exceeded={isExceeded}>
+        {characterCount}{#if maxLength}/{maxLength}{/if}
+      </span>
     {/if}
   </div>
 {:else}
@@ -136,6 +146,7 @@ $: effectivePlaceholder = focused ? placeholder : " ";
       {min}
       {max}
       {lang}
+      maxlength={maxLength}
       on:focus={handleFocus}
       on:blur={handleBlur}
       on:input={onInput}
@@ -145,5 +156,24 @@ $: effectivePlaceholder = focused ? placeholder : " ";
     {#if error}
       <span class="error-message">{error}</span>
     {/if}
+    {#if showCharacterCount}
+      <span class="character-count" class:exceeded={isExceeded}>
+        {characterCount}{#if maxLength}/{maxLength}{/if}
+      </span>
+    {/if}
   </div>
 {/if}
+
+<style>
+  .character-count {
+    position: absolute;
+    bottom: -1.5rem;
+    right: 0;
+    font-size: 0.75rem;
+    color: var(--surface-600);
+  }
+
+  .character-count.exceeded {
+    color: var(--error-500);
+  }
+</style>

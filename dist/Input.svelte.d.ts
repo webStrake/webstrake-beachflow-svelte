@@ -15,6 +15,8 @@ declare const __propDef: {
         max?: any;
         lang?: string;
         error?: string | null;
+        showCharacterCount?: boolean;
+        maxLength?: number | undefined;
     };
     events: {
         input: CustomEvent<any>;
