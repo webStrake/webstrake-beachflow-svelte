@@ -13,7 +13,7 @@ export let min = void 0;
 export let max = void 0;
 export let lang = "en-IN";
 export let error = null;
-export let showCharacterCount = false;
+export let showCharacterCount = true;
 export let maxLength = void 0;
 if (id === "") {
   id = Math.random().toString(36).substring(7);
