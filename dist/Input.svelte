@@ -122,7 +122,7 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
     {#if error}
       <span class="error-message">{error}</span>
     {/if}
-    {#if showCharacterCount}
+    {#if showCharacterCount && maxLength}
       <span class="character-count" class:exceeded={isExceeded}>
         {characterCount}{#if maxLength}/{maxLength}{/if}
       </span>
@@ -156,7 +156,7 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
     {#if error}
       <span class="error-message">{error}</span>
     {/if}
-    {#if showCharacterCount}
+    {#if showCharacterCount && maxLength}
       <span class="character-count" class:exceeded={isExceeded}>
         {characterCount}{#if maxLength}/{maxLength}{/if}
       </span>
