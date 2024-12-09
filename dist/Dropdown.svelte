@@ -1,4 +1,5 @@
-<script>import { createEventDispatcher } from "svelte";
+<script>import { slide } from "svelte/transition";
+import { createEventDispatcher } from "svelte";
 export let options = [];
 export let selected = "";
 export let placeholder = "Select options";
@@ -10,10 +11,59 @@ export let required = false;
 export let error = null;
 export let variant = null;
 const dispatch = createEventDispatcher();
-let selectElement;
+let isOpen = false;
 let searchTerm = "";
+let filteredOptions = options;
 let isLoading = false;
-function handleChange(event) {
+let nativeSelect;
+let optionsContainer;
+let searchInput;
+$: {
+  if (searchable) {
+    filteredOptions = options.filter(
+      (option) => option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  } else {
+    filteredOptions = options;
+  }
+}
+function syncNativeSelect(value) {
+  if (!nativeSelect) return;
+  if (multiple) {
+    Array.from(nativeSelect.options).forEach((option) => {
+      option.selected = value?.includes(option.value);
+    });
+  } else {
+    nativeSelect.value = value || "";
+  }
+}
+function toggle() {
+  isOpen = !isOpen;
+  if (!isOpen) {
+    searchTerm = "";
+  } else if (searchable && searchInput) {
+    setTimeout(() => searchInput.focus(), 0);
+  }
+}
+function handleSelect(value) {
+  if (multiple) {
+    const values = Array.isArray(selected) ? [...selected] : [];
+    const index = values.indexOf(value);
+    if (index === -1) {
+      values.push(value);
+    } else {
+      values.splice(index, 1);
+    }
+    selected = values;
+  } else {
+    selected = value;
+    isOpen = false;
+  }
+  syncNativeSelect(selected);
+  dispatch("change", { value: selected });
+  nativeSelect.dispatchEvent(new Event("change"));
+}
+function handleNativeChange(event) {
   const target = event.target;
   if (multiple) {
     selected = Array.from(target.selectedOptions).map((opt) => opt.value);
@@ -21,6 +71,28 @@ function handleChange(event) {
     selected = target.value;
   }
   dispatch("change", { value: selected });
+}
+function handleClickOutside(event) {
+  if (isOpen && !event.composedPath().some((el) => el instanceof Element && el.classList.contains("dropdown"))) {
+    isOpen = false;
+    searchTerm = "";
+  }
+}
+function handleKeydown(event) {
+  if (!isOpen) {
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+      event.preventDefault();
+      toggle();
+    }
+    return;
+  }
+  if (event.key === "Escape") {
+    isOpen = false;
+    searchTerm = "";
+    return;
+  }
+  nativeSelect.focus();
+  nativeSelect.dispatchEvent(new KeyboardEvent("keydown", event));
 }
 async function handleScroll(e) {
   if (!loadMore) return;
@@ -33,13 +105,17 @@ async function handleScroll(e) {
     }
   }
 }
-$: filteredOptions = searchable ? options.filter((opt) => opt.label.toLowerCase().includes(searchTerm.toLowerCase())) : options;
+$: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
+$: selectedLabels = options.filter((o) => selectedValues.includes(o.value)).map((o) => o.label);
+$: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder;
 </script>
+
+<svelte:window on:click={handleClickOutside} />
 
 <div class="dropdown {variant || ''}" data-testid="dropdown">
   {#if label}
     <label 
-      for="dropdown-select" 
+      for="native-select" 
       class="dropdown-label"
       class:error={error !== null}
     >
@@ -47,55 +123,97 @@ $: filteredOptions = searchable ? options.filter((opt) => opt.label.toLowerCase(
     </label>
   {/if}
 
-  {#if searchable}
-    <input
-      type="text"
-      class="dropdown-search-input"
-      placeholder="Search options..."
-      bind:value={searchTerm}
-    />
-  {/if}
-
-  <div class="select-wrapper">
-    <select
-      id="dropdown-select"
-      class="dropdown-toggle"
-      class:error={error !== null}
-      bind:this={selectElement}
-      {multiple}
-      {required}
-      on:change={handleChange}
-      on:scroll={handleScroll}
-      size={multiple ? 4 : 1}
-    >
-      {#if !multiple}
-        <option value="" disabled selected={!selected}>
-          {placeholder}
-        </option>
-      {/if}
-      
-      {#each filteredOptions as option}
-        <option 
-          value={option.value}
-          selected={multiple ? selected?.includes(option.value) : selected === option.value}
-        >
-          {option.label}
-        </option>
-      {/each}
-    </select>
-
-    {#if !multiple}
-      <span class="dropdown-icon material-symbols-rounded">
-        expand_more
-      </span>
-    {/if}
-  </div>
+  <!-- Custom UI -->
+  <button
+    type="button"
+    class="dropdown-toggle"
+    class:error={error !== null}
+    aria-haspopup="listbox"
+    aria-expanded={isOpen}
+    on:click={toggle}
+    on:keydown={handleKeydown}
+  >
+    <span class="dropdown-text">{displayValue}</span>
+    <span class="dropdown-icon material-symbols-rounded">
+      expand_more
+    </span>
+  </button>
 
   {#if error}
     <span class="dropdown-error">{error}</span>
   {/if}
 
-  {#if isLoading}
-    <div class="dropdown-loading">Loading...</div>
+  {#if isOpen}
+    <div 
+      class="dropdown-menu" 
+      role="listbox"
+      bind:this={optionsContainer}
+      transition:slide={{ duration: 300 }}
+      on:scroll={handleScroll}
+    >
+      {#if searchable}
+        <div class="dropdown-search">
+          <input
+            type="text"
+            class="dropdown-search-input"
+            placeholder="Search..."
+            bind:value={searchTerm}
+            bind:this={searchInput}
+          />
+        </div>
+      {/if}
+
+      <div class="dropdown-options">
+        {#each filteredOptions as option}
+          <option
+            class="dropdown-item"
+            class:selected={selectedValues.includes(option.value)}
+            role="option"
+            aria-selected={selectedValues.includes(option.value)}
+            on:click={() => handleSelect(option.value)}
+          >
+            {option.label}
+            {#if multiple && selectedValues.includes(option.value)}
+              <span class="dropdown-checkmark material-symbols-rounded">
+                check
+              </span>
+            {/if}
+          </option>
+        {/each}
+
+        {#if filteredOptions.length === 0}
+          <div class="dropdown-empty">No options found</div>
+        {/if}
+      </div>
+
+      {#if isLoading}
+        <div class="dropdown-loading">Loading...</div>
+      {/if}
+    </div>
   {/if}
+
+  <!-- Hidden native select for form submission and keyboard navigation -->
+  <select
+    id="native-select"
+    bind:this={nativeSelect}
+    {multiple}
+    {required}
+    class="sr-only"
+    on:change={handleNativeChange}
+  >
+    {#if !multiple}
+      <option value="" disabled selected={!selected}>
+        {placeholder}
+      </option>
+    {/if}
+    
+    {#each options as option}
+      <option 
+        value={option.value}
+        selected={selectedValues.includes(option.value)}
+      >
+        {option.label}
+      </option>
+    {/each}
+  </select>
 </div>
