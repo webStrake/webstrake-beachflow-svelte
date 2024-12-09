@@ -9,13 +9,13 @@ export let loadMore = null;
 export let multiple = false;
 export let required = false;
 export let error = null;
+export let variant = "primary";
 const dispatch = createEventDispatcher();
 let isOpen = false;
 let searchTerm = "";
 let filteredOptions = options;
 let isLoading = false;
-let focusedIndex = -1;
-let buttonElement;
+let selectElement;
 $: {
   if (searchable) {
     filteredOptions = options.filter(
@@ -32,20 +32,13 @@ function toggle() {
   }
   validateDropdown();
 }
-function select(value) {
+function handleChange(event) {
+  const select = event.target;
   if (multiple) {
-    if (Array.isArray(selected)) {
-      const index = selected.indexOf(value);
-      if (index === -1) {
-        selected = [...selected, value];
-      } else {
-        selected = selected.filter((v) => v !== value);
-      }
-    } else {
-      selected = [selected, value];
-    }
+    const selectedOptions = Array.from(select.selectedOptions).map((opt) => opt.value);
+    selected = selectedOptions;
   } else {
-    selected = value;
+    selected = select.value;
     isOpen = false;
   }
   dispatch("change", { value: selected });
@@ -71,41 +64,17 @@ async function handleScroll(e) {
     }
   }
 }
-function handleKeydown(event) {
-  if (!isOpen) return;
-  switch (event.key) {
-    case "ArrowDown":
-      event.preventDefault();
-      focusedIndex = Math.min(focusedIndex + 1, filteredOptions.length - 1);
-      break;
-    case "ArrowUp":
-      event.preventDefault();
-      focusedIndex = Math.max(focusedIndex - 1, 0);
-      break;
-    case "Enter":
-      event.preventDefault();
-      if (focusedIndex >= 0) {
-        select(filteredOptions[focusedIndex].value);
-      }
-      break;
-    case "Escape":
-      event.preventDefault();
-      isOpen = false;
-      validateDropdown();
-      break;
-  }
-}
 function handleMenuClick(event) {
   event.stopPropagation();
 }
 function validateDropdown() {
-  if (required && buttonElement) {
+  if (required && selectElement) {
     if (multiple ? selectedValues.length === 0 : !selected) {
-      buttonElement.setCustomValidity("Please select an option");
+      selectElement.setCustomValidity("Please select an option");
     } else {
-      buttonElement.setCustomValidity("");
+      selectElement.setCustomValidity("");
     }
-    buttonElement.reportValidity();
+    selectElement.reportValidity();
   }
 }
 $: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
@@ -113,39 +82,42 @@ $: selectedLabels = options.filter((o) => selectedValues.includes(o.value)).map(
 $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder;
 </script>
 
-<svelte:window on:click={handleClickOutside} on:keydown={handleKeydown} />
+<svelte:window on:click={handleClickOutside} />
 
-<div class="dropdown">
+<div class="dropdown {variant}" data-testid="dropdown">
   {#if label}
-    <label
-      for="dropdown-toggle"
+    <label 
+      for="dropdown-select" 
       class="dropdown-label"
-      class:error={error !== null}>{label}</label
+      class:error={error !== null}
     >
+      {label}
+    </label>
   {/if}
+
   <button
     type="button"
-    id="dropdown-toggle"
     class="dropdown-toggle"
     class:error={error !== null}
     aria-haspopup="listbox"
     aria-expanded={isOpen}
     on:click={toggle}
-    bind:this={buttonElement}
   >
-    {displayValue}
-    <span class="dropdown-icon" aria-hidden="true">expand_more</span>
+    <span class="dropdown-text">{displayValue}</span>
+    <span class="dropdown-icon material-symbols-rounded">
+      expand_more
+    </span>
   </button>
 
   {#if error}
     <span class="dropdown-error">{error}</span>
   {/if}
 
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
   {#if isOpen}
     <!-- svelte-ignore a11y-interactive-supports-focus -->
-    <div
-      class="dropdown-menu"
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div 
+      class="dropdown-menu" 
       role="listbox"
       transition:slide={{ duration: 300 }}
       on:scroll={handleScroll}
@@ -155,35 +127,60 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
         <div class="dropdown-search">
           <input
             type="text"
+            class="dropdown-search-input"
             placeholder="Search..."
             bind:value={searchTerm}
-            class="dropdown-search-input"
           />
         </div>
       {/if}
-      <ul>
-        {#each filteredOptions as option, index}
-          <li>
-            <button
-              type="button"
-              class="dropdown-item"
-              class:selected={selectedValues.includes(option.value)}
-              class:focused={index === focusedIndex}
-              role="option"
-              aria-selected={selectedValues.includes(option.value)}
-              on:click|stopPropagation={() => select(option.value)}
-            >
-              {option.label}
-              {#if multiple && selectedValues.includes(option.value)}
-                <span class="dropdown-checkmark">✓</span>
-              {/if}
-            </button>
-          </li>
+
+      <div class="dropdown-options">
+        {#each filteredOptions as option}
+          <button
+            type="button"
+            class="dropdown-item"
+            class:selected={selectedValues.includes(option.value)}
+            role="option"
+            aria-selected={selectedValues.includes(option.value)}
+            on:click={() => handleChange({ target: { value: option.value } })}
+          >
+            {option.label}
+            {#if multiple && selectedValues.includes(option.value)}
+              <span class="dropdown-checkmark material-symbols-rounded">
+                check
+              </span>
+            {/if}
+          </button>
         {/each}
-      </ul>
+      </div>
+
       {#if isLoading}
         <div class="dropdown-loading">Loading...</div>
       {/if}
     </div>
   {/if}
+
+  <select
+    id="dropdown-select"
+    bind:this={selectElement}
+    {multiple}
+    {required}
+    class="hidden"
+    aria-hidden="true"
+  >
+    {#if !multiple}
+      <option value="" disabled selected={!selected}>
+        {placeholder}
+      </option>
+    {/if}
+    
+    {#each options as option}
+      <option 
+        value={option.value}
+        selected={selectedValues.includes(option.value)}
+      >
+        {option.label}
+      </option>
+    {/each}
+  </select>
 </div>
