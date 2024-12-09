@@ -15,8 +15,8 @@ let isOpen = false;
 let searchTerm = "";
 let filteredOptions = options;
 let isLoading = false;
-let nativeSelect;
-let optionsContainer;
+let focusedIndex = -1;
+let selectElement;
 let searchInput;
 $: {
   if (searchable) {
@@ -27,55 +27,43 @@ $: {
     filteredOptions = options;
   }
 }
-function syncNativeSelect(value) {
-  if (!nativeSelect) return;
-  if (multiple) {
-    Array.from(nativeSelect.options).forEach((option) => {
-      option.selected = value?.includes(option.value);
-    });
-  } else {
-    nativeSelect.value = value || "";
-  }
-}
 function toggle() {
   isOpen = !isOpen;
   if (!isOpen) {
     searchTerm = "";
+    focusedIndex = -1;
   } else if (searchable && searchInput) {
     setTimeout(() => searchInput.focus(), 0);
   }
+  validateDropdown();
 }
-function handleSelect(value) {
+function handleChange(index) {
+  const selectedOption = filteredOptions[index];
+  if (!selectedOption) return;
   if (multiple) {
-    const values = Array.isArray(selected) ? [...selected] : [];
-    const index = values.indexOf(value);
-    if (index === -1) {
-      values.push(value);
+    const newSelected = Array.isArray(selected) ? [...selected] : [];
+    const valueIndex = newSelected.indexOf(selectedOption.value);
+    if (valueIndex === -1) {
+      newSelected.push(selectedOption.value);
     } else {
-      values.splice(index, 1);
+      newSelected.splice(valueIndex, 1);
     }
-    selected = values;
+    selected = newSelected;
   } else {
-    selected = value;
+    selected = selectedOption.value;
     isOpen = false;
   }
-  syncNativeSelect(selected);
   dispatch("change", { value: selected });
-  nativeSelect.dispatchEvent(new Event("change"));
-}
-function handleNativeChange(event) {
-  const target = event.target;
-  if (multiple) {
-    selected = Array.from(target.selectedOptions).map((opt) => opt.value);
-  } else {
-    selected = target.value;
-  }
-  dispatch("change", { value: selected });
+  validateDropdown();
 }
 function handleClickOutside(event) {
-  if (isOpen && !event.composedPath().some((el) => el instanceof Element && el.classList.contains("dropdown"))) {
+  if (isOpen && !event.composedPath().some(
+    (el) => el instanceof Element && el.classList.contains("dropdown")
+  )) {
     isOpen = false;
     searchTerm = "";
+    focusedIndex = -1;
+    validateDropdown();
   }
 }
 function handleKeydown(event) {
@@ -83,16 +71,54 @@ function handleKeydown(event) {
     if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
       event.preventDefault();
       toggle();
+      return;
     }
-    return;
+  } else {
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        focusedIndex = Math.min(focusedIndex + 1, filteredOptions.length - 1);
+        scrollToFocused();
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        focusedIndex = Math.max(focusedIndex - 1, -1);
+        scrollToFocused();
+        break;
+      case "Enter":
+        event.preventDefault();
+        if (focusedIndex >= 0) {
+          handleChange(focusedIndex);
+        }
+        break;
+      case "Escape":
+        event.preventDefault();
+        isOpen = false;
+        searchTerm = "";
+        focusedIndex = -1;
+        break;
+      case "Tab":
+        isOpen = false;
+        searchTerm = "";
+        focusedIndex = -1;
+        break;
+    }
   }
-  if (event.key === "Escape") {
-    isOpen = false;
-    searchTerm = "";
-    return;
+}
+function scrollToFocused() {
+  if (focusedIndex >= 0) {
+    const menuElement = document.querySelector(".dropdown-menu");
+    const focusedElement = document.querySelector(`.dropdown-item:nth-child(${focusedIndex + 1})`);
+    if (menuElement && focusedElement) {
+      const menuRect = menuElement.getBoundingClientRect();
+      const focusedRect = focusedElement.getBoundingClientRect();
+      if (focusedRect.bottom > menuRect.bottom) {
+        menuElement.scrollTop += focusedRect.bottom - menuRect.bottom;
+      } else if (focusedRect.top < menuRect.top) {
+        menuElement.scrollTop += focusedRect.top - menuRect.top;
+      }
+    }
   }
-  nativeSelect.focus();
-  nativeSelect.dispatchEvent(new KeyboardEvent("keydown", event));
 }
 async function handleScroll(e) {
   if (!loadMore) return;
@@ -105,6 +131,19 @@ async function handleScroll(e) {
     }
   }
 }
+function handleMenuClick(event) {
+  event.stopPropagation();
+}
+function validateDropdown() {
+  if (required && selectElement) {
+    if (multiple ? selectedValues.length === 0 : !selected) {
+      selectElement.setCustomValidity("Please select an option");
+    } else {
+      selectElement.setCustomValidity("");
+    }
+    selectElement.reportValidity();
+  }
+}
 $: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
 $: selectedLabels = options.filter((o) => selectedValues.includes(o.value)).map((o) => o.label);
 $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder;
@@ -115,7 +154,7 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
 <div class="dropdown {variant || ''}" data-testid="dropdown">
   {#if label}
     <label 
-      for="native-select" 
+      for="dropdown-select" 
       class="dropdown-label"
       class:error={error !== null}
     >
@@ -123,7 +162,6 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     </label>
   {/if}
 
-  <!-- Custom UI -->
   <button
     type="button"
     class="dropdown-toggle"
@@ -144,12 +182,14 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
   {/if}
 
   {#if isOpen}
+    <!-- svelte-ignore a11y-interactive-supports-focus -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div 
       class="dropdown-menu" 
       role="listbox"
-      bind:this={optionsContainer}
       transition:slide={{ duration: 300 }}
       on:scroll={handleScroll}
+      on:click={handleMenuClick}
     >
       {#if searchable}
         <div class="dropdown-search">
@@ -159,18 +199,22 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
             placeholder="Search..."
             bind:value={searchTerm}
             bind:this={searchInput}
+            on:keydown={handleKeydown}
           />
         </div>
       {/if}
 
       <div class="dropdown-options">
-        {#each filteredOptions as option}
-          <option
+        {#each filteredOptions as option, index}
+          <button
+            type="button"
             class="dropdown-item"
             class:selected={selectedValues.includes(option.value)}
+            class:focused={index === focusedIndex}
             role="option"
             aria-selected={selectedValues.includes(option.value)}
-            on:click={() => handleSelect(option.value)}
+            on:click={() => handleChange(index)}
+            on:keydown={handleKeydown}
           >
             {option.label}
             {#if multiple && selectedValues.includes(option.value)}
@@ -178,7 +222,7 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
                 check
               </span>
             {/if}
-          </option>
+          </button>
         {/each}
 
         {#if filteredOptions.length === 0}
@@ -192,14 +236,13 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     </div>
   {/if}
 
-  <!-- Hidden native select for form submission and keyboard navigation -->
   <select
-    id="native-select"
-    bind:this={nativeSelect}
+    id="dropdown-select"
+    bind:this={selectElement}
     {multiple}
     {required}
-    class="sr-only"
-    on:change={handleNativeChange}
+    class="hidden"
+    aria-hidden="true"
   >
     {#if !multiple}
       <option value="" disabled selected={!selected}>
