@@ -23,5 +23,6 @@ import Chip from './Chip.svelte';
 import InputChips from './InputChips.svelte';
 import InfoBlock from './InfoBlock.svelte';
 import Alert from './Alert.svelte';
+import Masonry from './Masonry.svelte';
 import { toast } from './services/toast.service.js';
-export { Input, Accordion, AccordionItem, InteractiveStepper, SnackBar, toast, Dropdown, FileInput, DropZone, Modal, Menu, Pagination, Popover, Progress, Radio, RadioGroup, Range, Switch, Tabs, Tooltip, Skeleton, Layout, Chip, InputChips, InfoBlock, Alert };
+export { Input, Accordion, AccordionItem, InteractiveStepper, SnackBar, toast, Dropdown, FileInput, DropZone, Modal, Menu, Pagination, Popover, Progress, Radio, RadioGroup, Range, Switch, Tabs, Tooltip, Skeleton, Layout, Chip, InputChips, InfoBlock, Alert, Masonry };
