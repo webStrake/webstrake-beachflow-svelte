@@ -164,7 +164,6 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
       role="listbox"
       transition:slide={{ duration: 300 }}
       on:scroll={handleScroll}
-      style="position: fixed; z-index: 1000;"
       on:click|stopPropagation={handleMenuClick}
     >
       {#if searchable}
