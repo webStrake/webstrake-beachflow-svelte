@@ -1,4 +1,5 @@
-<script>import { createEventDispatcher } from "svelte";
+<script>import { DateTime } from "luxon";
+import { createEventDispatcher } from "svelte";
 export let type = "text";
 export let placeholder = "";
 export let value = "";
@@ -20,7 +21,7 @@ if (id === "") {
 }
 const isTextarea = type === "textarea";
 const isCheckbox = type === "checkbox";
-const isDateTime = type === "date" || type === "time";
+const isDateTime = type === "date" || type === "time" || type === "datetime-local";
 let focused = false;
 const dispatch = createEventDispatcher();
 function handleFocus() {
@@ -40,8 +41,41 @@ function onInput(event) {
 }
 function onChange(event) {
   const target = event.target;
+  if (isDateTime) {
+    formattedDate = formatDate();
+  }
   dispatch("change", { value: target.value });
 }
+const formatDate = () => {
+  if (!value) return "";
+  try {
+    const dt = DateTime.fromISO(value.toString());
+    if (!dt.isValid) return "";
+    switch (type) {
+      case "date":
+        return dt.toLocaleString({
+          weekday: "short",
+          month: "short",
+          day: "2-digit",
+          year: "numeric"
+        });
+      case "datetime-local":
+        return dt.toLocaleString({
+          weekday: "short",
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      default:
+        return "";
+    }
+  } catch {
+    return "";
+  }
+};
+let formattedDate = formatDate();
 $: effectivePlaceholder = focused ? placeholder : " ";
 $: characterCount = typeof value === "string" ? value.length : 0;
 $: isExceeded = maxLength ? characterCount > maxLength : false;
@@ -95,7 +129,7 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
     {#if icon}
       <span class="date-time-icon">{icon}</span>
     {/if}
-    <label for={id} class="date-time-label">{label}</label>
+    <label for={id} class="date-time-label">{label}{formattedDate?` - ${formattedDate}`:''}</label>
     {#if error}
       <span class="error-message">{error}</span>
     {/if}

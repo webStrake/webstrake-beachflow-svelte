@@ -1,7 +1,7 @@
 import { SvelteComponent } from "svelte";
 declare const __propDef: {
     props: {
-        type?: "text" | "textarea" | "checkbox" | "date" | "time" | any;
+        type?: "text" | "textarea" | "checkbox" | "date" | "time" | "datetime-local" | any;
         placeholder?: string;
         value?: string | boolean | any;
         label?: string;
