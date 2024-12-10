@@ -1,4 +1,5 @@
 <script>import { createEventDispatcher } from "svelte";
+import DatePicker from "./DatePicker.svelte";
 export let type = "text";
 export let placeholder = "";
 export let value = "";
@@ -20,7 +21,7 @@ if (id === "") {
 }
 const isTextarea = type === "textarea";
 const isCheckbox = type === "checkbox";
-const isDateTime = type === "date" || type === "time";
+const isDateTime = type === "date" || type === "time" || type === "datetime";
 let focused = false;
 const dispatch = createEventDispatcher();
 function handleFocus() {
@@ -42,9 +43,22 @@ function onChange(event) {
   const target = event.target;
   dispatch("change", { value: target.value });
 }
+function handleDateChange(event) {
+  dispatch("change", { value: event.detail.value });
+  dispatch("input", { value: event.detail.value });
+}
 $: effectivePlaceholder = focused ? placeholder : " ";
 $: characterCount = typeof value === "string" ? value.length : 0;
 $: isExceeded = maxLength ? characterCount > maxLength : false;
+$: datePickerConfig = {
+  locale: lang,
+  format: type === "time" ? "HH:mm" : type === "datetime" ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy",
+  use24Hours: true,
+  minYear: 1900,
+  maxYear: 2100,
+  timeInterval: 30,
+  firstDayOfWeek: 1
+};
 </script>
 
 {#if isCheckbox}
@@ -74,23 +88,17 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
   </label>
 {:else if isDateTime}
   <div class="date-time-container">
-    <input
-      use:typeAction
-      {id}
-      class="date-time-input"
-      class:error={error !== null}
-      placeholder={effectivePlaceholder}
+    <DatePicker
       bind:value
-      {required}
+      mode={type === 'time' ? 'time' : type === 'datetime' ? 'datetime' : 'date'}
+      placeholder={placeholder}
       {disabled}
-      {step}
-      {min}
-      {max}
-      {lang}
-      on:focus={handleFocus}
-      on:blur={handleBlur}
-      on:input={onInput}
-      on:change={onChange}
+      {required}
+      error={error}
+      minDate={min}
+      maxDate={max}
+      config={datePickerConfig}
+      on:change={handleDateChange}
     />
     {#if icon}
       <span class="date-time-icon">{icon}</span>
