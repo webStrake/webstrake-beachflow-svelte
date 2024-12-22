@@ -15,19 +15,19 @@ $: if (duration > 0) {
 function getPositionClass(pos) {
   switch (pos) {
     case "top-left":
-      return "top-4 left-4";
+      return "toast-top-left";
     case "top-right":
-      return "top-4 right-4";
+      return "toast-top-right";
     case "bottom-left":
-      return "bottom-4 left-4";
+      return "toast-bottom-left";
     case "bottom-right":
-      return "bottom-4 right-4";
+      return "toast-bottom-right";
     case "top-center":
-      return "top-4 left-1/2 -translate-x-1/2";
+      return "toast-top-center";
     case "bottom-center":
-      return "bottom-4 left-1/2 -translate-x-1/2";
+      return "toast-bottom-center";
     default:
-      return "bottom-4 left-1/2 -translate-x-1/2";
+      return "toast-bottom-center";
   }
 }
 function getTransitionParams(pos) {
@@ -40,8 +40,10 @@ function getTransitionParams(pos) {
 }
 </script>
 
-<div class="toast-stack {getPositionClass(position)}">
+<div class="toast-container {getPositionClass(position)}">
   {#each visibleToasts as toast (toast.id)}
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
       class="toast {toast.type}"
       in:fly={getTransitionParams(position)}
@@ -53,31 +55,3 @@ function getTransitionParams(pos) {
     </div>
   {/each}
 </div>
-
-<style>
-  .toast-stack {
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    max-width: 400px;
-    width: 100%;
-    z-index: 9999;
-  }
-
-  .toast {
-    width: 100%;
-    padding: 1rem;
-    border-radius: 4px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  .toast-icon {
-    margin-right: 0.5rem;
-  }
-
-</style>
