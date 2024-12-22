@@ -1,4 +1,4 @@
-// Toast.svelte
+<!-- SnackBar.svelte -->
 <script>import { fade, fly } from "svelte/transition";
 import { toast } from "./services/toast.service.js";
 export let duration = 3e3;
