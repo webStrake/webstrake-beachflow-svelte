@@ -1,3 +1,4 @@
+// Toast.svelte
 <script>import { fade, fly } from "svelte/transition";
 import { toast } from "./services/toast.service.js";
 export let duration = 3e3;
@@ -12,24 +13,6 @@ $: if (duration > 0) {
     setTimeout(() => close(toast2.id), duration);
   });
 }
-function getPositionClass(pos) {
-  switch (pos) {
-    case "top-left":
-      return "toast-top-left";
-    case "top-right":
-      return "toast-top-right";
-    case "bottom-left":
-      return "toast-bottom-left";
-    case "bottom-right":
-      return "toast-bottom-right";
-    case "top-center":
-      return "toast-top-center";
-    case "bottom-center":
-      return "toast-bottom-center";
-    default:
-      return "toast-bottom-center";
-  }
-}
 function getTransitionParams(pos) {
   const y = pos.startsWith("top") ? -10 : 10;
   return {
@@ -40,10 +23,10 @@ function getTransitionParams(pos) {
 }
 </script>
 
-<div class="toast-container {getPositionClass(position)}">
+<div class="toast-container" data-position={position}>
   {#each visibleToasts as toast (toast.id)}
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
       class="toast {toast.type}"
       in:fly={getTransitionParams(position)}
