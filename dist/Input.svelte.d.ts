@@ -19,8 +19,12 @@ declare const __propDef: {
         maxLength?: number | undefined;
     };
     events: {
-        input: CustomEvent<any>;
-        change: CustomEvent<any>;
+        input: CustomEvent<{
+            value: string;
+        }>;
+        change: CustomEvent<{
+            value: string | boolean;
+        }>;
     } & {
         [evt: string]: CustomEvent<any>;
     };

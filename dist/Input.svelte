@@ -44,6 +44,10 @@ function onChange(event) {
   if (isDateTime) {
     formattedDate = formatDate();
   }
+  if (isCheckbox) {
+    dispatch("change", { value: target.checked });
+    return;
+  }
   dispatch("change", { value: target.value });
 }
 const formatDate = () => {
