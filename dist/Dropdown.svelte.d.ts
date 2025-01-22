@@ -13,6 +13,7 @@ declare const __propDef: {
         multiple?: boolean;
         required?: boolean;
         error?: string | null;
+        disabled?: boolean;
     };
     events: {
         change: CustomEvent<any>;

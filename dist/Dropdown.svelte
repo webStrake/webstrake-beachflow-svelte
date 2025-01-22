@@ -9,6 +9,7 @@ export let loadMore = null;
 export let multiple = false;
 export let required = false;
 export let error = null;
+export let disabled = false;
 const dispatch = createEventDispatcher();
 let isOpen = false;
 let searchTerm = "";
@@ -29,6 +30,7 @@ $: {
   }
 }
 function toggle() {
+  if (disabled) return;
   isOpen = !isOpen;
   if (!isOpen) {
     searchTerm = "";
@@ -121,7 +123,7 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
 <div class="dropdown">
   {#if label}
     <label for={id} class="dropdown-label" class:error={error !== null}
-      >{label}</label
+    class:disabled={disabled}>{label}</label
     >
   {/if}
 
@@ -133,6 +135,7 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     {required}
     {multiple}
     value={selected}
+    {disabled}
   >
     {#each options as option}
       <option value={option.value}>{option.label}</option>
@@ -142,11 +145,13 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
   <button
     type="button"
     class="dropdown-toggle"
+    class:disabled={disabled}
     class:error={error !== null}
     aria-haspopup="listbox"
     aria-expanded={isOpen}
     on:click={toggle}
     bind:this={buttonElement}
+    {disabled}
   >
     {displayValue}
     <span class="dropdown-icon" aria-hidden="true">expand_more</span>
