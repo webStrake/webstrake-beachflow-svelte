@@ -22,6 +22,7 @@ function addChip() {
       value = [...value, newChip];
     }
   });
+  dispatch("change", { value });
   inputValue = "";
   isInvalid = false;
   errorMessage = "";

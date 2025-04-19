@@ -13,6 +13,7 @@ declare const __propDef: {
         allowComma?: boolean;
     };
     events: {
+        change: CustomEvent<any>;
         invalid: CustomEvent<any>;
     } & {
         [evt: string]: CustomEvent<any>;
