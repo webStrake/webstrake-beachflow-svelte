@@ -5,9 +5,16 @@ declare const __propDef: {
         multiple?: boolean;
         placeholder?: string;
         files?: FileList | null;
+        label?: string;
+        required?: boolean;
+        disabled?: boolean;
+        showClearButton?: boolean;
+        error?: string | null;
+        name?: string;
     };
     events: {
         change: CustomEvent<any>;
+        clear: CustomEvent<any>;
     } & {
         [evt: string]: CustomEvent<any>;
     };

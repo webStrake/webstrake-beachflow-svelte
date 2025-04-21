@@ -6,6 +6,10 @@ declare const __propDef: {
         color?: "primary" | "secondary" | "tertiary" | "success" | "warning" | "error";
         size?: "sm" | "md" | "lg";
         label?: string;
+        labelPosition?: "right" | "left";
+        name?: string;
+        required?: boolean;
+        error?: string | null;
     };
     events: {
         change: Event;
