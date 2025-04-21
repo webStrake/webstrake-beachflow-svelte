@@ -17,6 +17,7 @@ declare const __propDef: {
         error?: string | null;
         showCharacterCount?: boolean;
         maxLength?: number | undefined;
+        showRequiredIndicator?: boolean;
     };
     events: {
         input: CustomEvent<{

@@ -10,6 +10,7 @@ export let multiple = false;
 export let required = false;
 export let error = null;
 export let disabled = false;
+export let maxSelections = null;
 const dispatch = createEventDispatcher();
 let isOpen = false;
 let searchTerm = "";
@@ -18,6 +19,7 @@ let isLoading = false;
 let focusedIndex = -1;
 let buttonElement;
 let selectElement;
+let dropdownMenu;
 const id = Math.random().toString(36).substring(7);
 const id2 = Math.random().toString(36).substring(7);
 $: {
@@ -42,11 +44,19 @@ function select(value) {
     if (Array.isArray(selected)) {
       const index = selected.indexOf(value);
       if (index === -1) {
+        if (maxSelections && selected.length >= maxSelections) {
+          dispatch("maxSelectionsReached");
+          return;
+        }
         selected = [...selected, value];
       } else {
         selected = selected.filter((v) => v !== value);
       }
     } else {
+      if (maxSelections && maxSelections < 2) {
+        dispatch("maxSelectionsReached");
+        return;
+      }
       selected = [selected, value];
     }
   } else {
@@ -76,16 +86,35 @@ async function handleScroll(e) {
     }
   }
 }
+function scrollIntoViewIfNeeded(index) {
+  if (!dropdownMenu) return;
+  const items = dropdownMenu.querySelectorAll(".dropdown-item");
+  if (items[index]) {
+    const item = items[index];
+    const container = dropdownMenu;
+    const containerTop = container.scrollTop;
+    const containerBottom = containerTop + container.clientHeight;
+    const itemTop = item.offsetTop;
+    const itemBottom = itemTop + item.clientHeight;
+    if (itemTop < containerTop) {
+      container.scrollTop = itemTop;
+    } else if (itemBottom > containerBottom) {
+      container.scrollTop = itemBottom - container.clientHeight;
+    }
+  }
+}
 function handleKeydown(event) {
   if (!isOpen) return;
   switch (event.key) {
     case "ArrowDown":
       event.preventDefault();
       focusedIndex = Math.min(focusedIndex + 1, filteredOptions.length - 1);
+      scrollIntoViewIfNeeded(focusedIndex);
       break;
     case "ArrowUp":
       event.preventDefault();
       focusedIndex = Math.max(focusedIndex - 1, 0);
+      scrollIntoViewIfNeeded(focusedIndex);
       break;
     case "Enter":
       event.preventDefault();
@@ -105,12 +134,20 @@ function handleMenuClick(event) {
 }
 function validateDropdown() {
   if (required && buttonElement) {
-    if (multiple ? selectedValues.length === 0 : !selected) {
-      buttonElement.setCustomValidity("Please select an option");
+    if (multiple) {
+      if (selectedValues.length === 0) {
+        selectElement.setCustomValidity("Please select at least one option");
+      } else {
+        selectElement.setCustomValidity("");
+      }
     } else {
-      buttonElement.setCustomValidity("");
+      if (!selected) {
+        selectElement.setCustomValidity("Please select an option");
+      } else {
+        selectElement.setCustomValidity("");
+      }
     }
-    buttonElement.reportValidity();
+    selectElement.reportValidity();
   }
 }
 $: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
@@ -134,11 +171,16 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     style="position: absolute; opacity: 0; pointer-events: none;"
     {required}
     {multiple}
-    value={selected}
     {disabled}
   >
+    <option value="" disabled selected={selectedValues.length === 0}
+      >{placeholder}</option
+    >
     {#each options as option}
-      <option value={option.value}>{option.label}</option>
+      <option
+        value={option.value}
+        selected={selectedValues.includes(option.value)}>{option.label}</option
+      >
     {/each}
   </select>
 
@@ -167,6 +209,7 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     <div
       class="dropdown-menu"
       role="listbox"
+      bind:this={dropdownMenu}
       transition:slide={{ duration: 300 }}
       on:scroll={handleScroll}
       on:click|stopPropagation={handleMenuClick}

@@ -16,6 +16,7 @@ export let lang = "en-IN";
 export let error = null;
 export let showCharacterCount = true;
 export let maxLength = void 0;
+export let showRequiredIndicator = true;
 if (id === "") {
   id = Math.random().toString(36).substring(7);
 }
@@ -83,6 +84,7 @@ let formattedDate = formatDate();
 $: effectivePlaceholder = focused ? placeholder : " ";
 $: characterCount = typeof value === "string" ? value.length : 0;
 $: isExceeded = maxLength ? characterCount > maxLength : false;
+$: showRequiredMark = required && showRequiredIndicator;
 </script>
 
 {#if isCheckbox}
@@ -105,7 +107,12 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
       on:change={onChange}
     />
     <span class="checkbox-custom"></span>
-    <span class="checkbox-label">{label}</span>
+    <span class="checkbox-label">
+      {label}
+      {#if showRequiredMark}
+        <span class="required-indicator">*</span>
+      {/if}
+    </span>
     {#if error}
       <span class="error-message">{error}</span>
     {/if}
@@ -133,7 +140,12 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
     {#if icon}
       <span class="date-time-icon">{icon}</span>
     {/if}
-    <label for={id} class="date-time-label">{label}{formattedDate?` - ${formattedDate}`:''}</label>
+    <label for={id} class="date-time-label">
+      {label}{formattedDate?` - ${formattedDate}`:''}
+      {#if showRequiredMark}
+        <span class="required-indicator">*</span>
+      {/if}
+    </label>
     {#if error}
       <span class="error-message">{error}</span>
     {/if}
@@ -156,7 +168,12 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
       on:input={onInput}
       on:change={onChange}
     ></textarea>
-    <label for={id} class="textarea-label">{label}</label>
+    <label for={id} class="textarea-label">
+      {label}
+      {#if showRequiredMark}
+        <span class="required-indicator">*</span>
+      {/if}
+    </label>
     {#if error}
       <span class="error-message">{error}</span>
     {/if}
@@ -190,7 +207,12 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
       on:input={onInput}
       on:change={onChange}
     />
-    <label for={id} class="input-label">{label}</label>
+    <label for={id} class="input-label">
+      {label}
+      {#if showRequiredMark}
+        <span class="required-indicator">*</span>
+      {/if}
+    </label>
     {#if error}
       <span class="error-message">{error}</span>
     {/if}
@@ -202,16 +224,4 @@ $: isExceeded = maxLength ? characterCount > maxLength : false;
   </div>
 {/if}
 
-<style>
-  .character-count {
-    position: absolute;
-    bottom: -1.5rem;
-    right: 0;
-    font-size: 0.75rem;
-    color: var(--surface-600);
-  }
 
-  .character-count.exceeded {
-    color: var(--error-500);
-  }
-</style>

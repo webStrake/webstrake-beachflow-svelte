@@ -6,9 +6,15 @@ declare const __propDef: {
         color?: "primary" | "secondary" | "tertiary" | "success" | "warning" | "error";
         size?: "sm" | "md" | "lg";
         label?: string;
+        required?: boolean;
+        error?: string | null;
+        labelPosition?: "left" | "right";
+        name?: string;
+        id?: string;
+        showRequiredIndicator?: boolean;
     };
     events: {
-        change: Event;
+        change: CustomEvent<any>;
     } & {
         [evt: string]: CustomEvent<any>;
     };
