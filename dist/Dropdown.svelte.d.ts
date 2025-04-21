@@ -14,8 +14,6 @@ declare const __propDef: {
         required?: boolean;
         error?: string | null;
         disabled?: boolean;
-        maxSelections?: number | null;
-        name?: string;
     };
     events: {
         change: CustomEvent<any>;
