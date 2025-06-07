@@ -11,6 +11,7 @@ export let required = false;
 export let error = null;
 export let disabled = false;
 export let maxSelections = null;
+export let showRequiredIndicator = true;
 const dispatch = createEventDispatcher();
 let isOpen = false;
 let searchTerm = "";
@@ -37,34 +38,25 @@ function toggle() {
   if (!isOpen) {
     searchTerm = "";
   }
-  validateDropdown();
 }
 function select(value) {
   if (multiple) {
-    if (Array.isArray(selected)) {
-      const index = selected.indexOf(value);
-      if (index === -1) {
-        if (maxSelections && selected.length >= maxSelections) {
-          dispatch("maxSelectionsReached");
-          return;
-        }
-        selected = [...selected, value];
-      } else {
-        selected = selected.filter((v) => v !== value);
-      }
-    } else {
-      if (maxSelections && maxSelections < 2) {
+    const currentSelected = Array.isArray(selected) ? selected : selected ? [selected] : [];
+    const index = currentSelected.indexOf(value);
+    if (index === -1) {
+      if (maxSelections && currentSelected.length >= maxSelections) {
         dispatch("maxSelectionsReached");
         return;
       }
-      selected = [selected, value];
+      selected = [...currentSelected, value];
+    } else {
+      selected = currentSelected.filter((v) => v !== value);
     }
   } else {
     selected = value;
     isOpen = false;
   }
   dispatch("change", { value: selected });
-  validateDropdown();
 }
 function handleClickOutside(event) {
   if (isOpen && !event.composedPath().some(
@@ -72,7 +64,6 @@ function handleClickOutside(event) {
   )) {
     isOpen = false;
     searchTerm = "";
-    validateDropdown();
   }
 }
 async function handleScroll(e) {
@@ -125,7 +116,6 @@ function handleKeydown(event) {
     case "Escape":
       event.preventDefault();
       isOpen = false;
-      validateDropdown();
       break;
   }
 }
@@ -133,7 +123,7 @@ function handleMenuClick(event) {
   event.stopPropagation();
 }
 function validateDropdown() {
-  if (required && buttonElement) {
+  if (required && selectElement) {
     if (multiple) {
       if (selectedValues.length === 0) {
         selectElement.setCustomValidity("Please select at least one option");
@@ -148,20 +138,28 @@ function validateDropdown() {
       }
     }
     selectElement.reportValidity();
+    console.log("Validation updated");
   }
 }
+$: if (selectElement) {
+  validateDropdown();
+}
 $: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
-$: selectedLabels = options.filter((o) => selectedValues.includes(o.value)).map((o) => o.label);
+$: selectedLabels = selectedValues.map((value) => options.find((o) => o.value === value)?.label).filter(Boolean);
 $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder;
+$: showRequiredMark = required && showRequiredIndicator;
 </script>
 
 <svelte:window on:click={handleClickOutside} on:keydown={handleKeydown} />
 
-<div class="dropdown">
-  {#if label}
+<div class="dropdown">  {#if label}
     <label for={id} class="dropdown-label" class:error={error !== null}
-    class:disabled={disabled}>{label}</label
-    >
+    class:disabled={disabled}>
+      {label}
+      {#if showRequiredMark}
+        <span class="required-indicator">*</span>
+      {/if}
+    </label>
   {/if}
 
   <!-- Add hidden native select for form compatibility -->
@@ -250,3 +248,10 @@ $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeh
     </div>
   {/if}
 </div>
+
+<style>
+  .required-mark {
+    color: red;
+    margin-left: 4px;
+  }
+</style>

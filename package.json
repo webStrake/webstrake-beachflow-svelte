@@ -1,6 +1,6 @@
 {
 	"name": "@webstrake/beachflow-svelte",
-	"version": "1.1.10",
+	"version": "1.1.11",
 	"scripts": {
 		"dev": "vite dev",
 		"build:vite": "vite build",

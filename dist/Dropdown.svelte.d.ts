@@ -15,6 +15,7 @@ declare const __propDef: {
         error?: string | null;
         disabled?: boolean;
         maxSelections?: number | null;
+        showRequiredIndicator?: boolean;
     };
     events: {
         maxSelectionsReached: CustomEvent<any>;
