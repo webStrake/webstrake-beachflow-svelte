@@ -122,28 +122,6 @@ function handleKeydown(event) {
 function handleMenuClick(event) {
   event.stopPropagation();
 }
-function validateDropdown() {
-  if (required && selectElement) {
-    if (multiple) {
-      if (selectedValues.length === 0) {
-        selectElement.setCustomValidity("Please select at least one option");
-      } else {
-        selectElement.setCustomValidity("");
-      }
-    } else {
-      if (selected === "" || selected === null || selected === void 0) {
-        selectElement.setCustomValidity("Please select an option");
-      } else {
-        selectElement.setCustomValidity("");
-      }
-    }
-    selectElement.reportValidity();
-    console.log("Validation updated");
-  }
-}
-$: if (selectElement) {
-  validateDropdown();
-}
 $: selectedValues = Array.isArray(selected) ? selected : [selected].filter(Boolean);
 $: selectedLabels = selectedValues.map((value) => options.find((o) => o.value === value)?.label).filter(Boolean);
 $: displayValue = selectedLabels.length > 0 ? selectedLabels.join(", ") : placeholder;
