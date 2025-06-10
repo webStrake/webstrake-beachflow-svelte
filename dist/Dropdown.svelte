@@ -131,7 +131,7 @@ function validateDropdown() {
         selectElement.setCustomValidity("");
       }
     } else {
-      if (!selected) {
+      if (selected === "" || selected === null || selected === void 0) {
         selectElement.setCustomValidity("Please select an option");
       } else {
         selectElement.setCustomValidity("");
